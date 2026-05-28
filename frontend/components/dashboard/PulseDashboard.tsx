@@ -125,7 +125,10 @@ export function PulseDashboard() {
       setSecsLeft(REFRESH_INTERVAL / 1000);
       setAllItems(data);
       setFetchState("live");
-    } catch { setFetchState("error"); }
+    } catch (e) {
+      console.error("[loadNews] failed:", e);
+      setFetchState("error");
+    }
   }, []);
 
   /* ── Fetch history ─────────────────────────────────────── */
@@ -134,11 +137,14 @@ export function PulseDashboard() {
     setFetchState("loading");
     try {
       const res = await fetch(`/api/news/history?range=${period}`);
-      if (!res.ok) throw new Error();
+      if (!res.ok) throw new Error(`History API returned ${res.status}`);
       const data: NewsItem[] = await res.json();
       setHistoryItems(data);
       setFetchState(data.length > 0 ? "live" : "mock");
-    } catch { setFetchState("error"); }
+    } catch (e) {
+      console.error("[loadHistory] failed:", e instanceof Error ? e.message : e);
+      setFetchState("error");
+    }
   }, []);
 
   useEffect(() => {
@@ -166,6 +172,18 @@ export function PulseDashboard() {
   const hasMore    = visibleCount < filtered.length;
   const allLoaded  = !hasMore;
   const trendingCount = useMemo(() => displayItems.filter(i => i.hypeScore > 80).length, [displayItems]);
+  const categoryStats = useMemo(() => {
+    const stats: Record<string, { count: number; unread: number }> = { all: { count: 0, unread: 0 } };
+    for (const item of displayItems) {
+      const isUnread = !readIds.has(item.id);
+      stats.all.count++;
+      if (isUnread) stats.all.unread++;
+      if (!stats[item.category]) stats[item.category] = { count: 0, unread: 0 };
+      stats[item.category].count++;
+      if (isUnread) stats[item.category].unread++;
+    }
+    return stats;
+  }, [displayItems, readIds]);
   const readCount  = useMemo(() => visible.filter(i => readIds.has(i.id)).length, [visible, readIds]);
   const readPct    = visible.length > 0 ? Math.round((readCount / visible.length) * 100) : 0;
 
@@ -308,10 +326,7 @@ export function PulseDashboard() {
           }}>
             {(["all", ...ALL_CATEGORIES] as const).map(cat => {
               const active  = activeCategory === cat;
-              const count   = cat === "all" ? displayItems.length : displayItems.filter(i => i.category === cat).length;
-              const unread  = cat === "all"
-                ? displayItems.filter(i => !readIds.has(i.id)).length
-                : displayItems.filter(i => i.category === cat && !readIds.has(i.id)).length;
+              const { count, unread } = categoryStats[cat] ?? { count: 0, unread: 0 };
               return (
                 <button key={cat} onClick={() => setActiveCategory(cat)} style={{
                   padding: "4px 10px", borderRadius: 6, border: "none",

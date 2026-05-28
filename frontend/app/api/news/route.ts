@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { initDb, upsertArticles } from "@/lib/db";
+import { stableId, decodeEntities } from "@/lib/utils";
 
 // Vercel: allow up to 60s (arXiv fetches can be slow)
 export const maxDuration = 60;
@@ -26,17 +27,17 @@ interface RawItem {
    CLASSIFIER — priority order matters (first match wins)
 ───────────────────────────────────────────────────────────────── */
 const RULES: [string, string[]][] = [
-  ["security",       ["safety","jailbreak","prompt injection","adversarial","red team","vulnerability","attack","privacy","hallucin","misuse","exploit","cybersecurity","breach","hack","ransomware","malware","phishing","zero-day"]],
+  ["security",       ["safety","jailbreak","prompt injection","adversarial","red team","vulnerability","attack","privacy","hallucin","misuse","exploit","cybersecurity","breach","hack","ransomware","malware","phishing","zero-day","cve","patch tuesday","data leak","data breach"]],
   ["agentic",        ["agent","agentic","tool call","tool use","autonomous","multi-agent","multi agent","workflow","orchestrat","planning","computer use","browser use","mcp","model context protocol"]],
-  ["research",       ["paper","arxiv","benchmark","dataset","evaluation","rlhf","alignment","experiment","ablation","pretraining","fine-tuning","finetune","training method","loss function","scaling law"]],
-  ["tooling",        ["sdk","library","framework","langchain","llamaindex","hugging face","huggingface","vllm","ollama","lmstudio","open webui","cli","plugin","integration"]],
-  ["infrastructure", ["gpu","compute","cluster","kubernetes","docker","mlops","pipeline","distributed","scaling","throughput","latency","serving","deployment","cloud","aws","gcp","azure","tpu","inference endpoint","data center","nvidia","chip"]],
-  ["llm",            ["gpt","llm","language model","claude","gemini","mistral","llama","qwen","phi","chatgpt","openai","anthropic","palm","transformer","token","inference","prompt","context window","fine-tun","deepseek","grok","copilot"]],
-  ["politics",       ["president","congress","senate","election","democrat","republican","parliament","government","policy","legislation","vote","white house","trump","biden","nato","geopolit","sanction","treaty","diplomat"]],
-  ["science",        ["nasa","space","climate","physics","biology","chemistry","medical","health","vaccine","cancer","gene","dna","quantum","asteroid","mars","moon","ocean","earthquake","volcano","fossil"]],
-  ["business",       ["stock","market","economy","gdp","fed","federal reserve","inflation","earnings","ipo","merger","acquisition","startup","venture","funding","revenue","profit","recession","trade","tariff","nasdaq","s&p"]],
-  ["world",          ["war","conflict","attack","killed","military","protest","crisis","flood","earthquake","hurricane","disaster","refugee","united nations","un ","ceasefire","troops","missile","explosion","shooting"]],
-  ["tech",           ["apple","google","microsoft","samsung","amazon","meta","tesla","chip","semiconductor","iphone","android","5g","broadband","internet","social media","tiktok","spotify","netflix","uber","startup"]],
+  ["research",       ["paper","arxiv","benchmark","dataset","evaluation","rlhf","alignment","experiment","ablation","pretraining","fine-tuning","finetune","training method","loss function","scaling law","machine learning","deep learning","neural network","reinforcement learning","diffusion model","multimodal","vision model","speech model"]],
+  ["tooling",        ["sdk","library","framework","langchain","llamaindex","hugging face","huggingface","vllm","ollama","lmstudio","open webui","cli","plugin","integration","api client","developer tool","open source tool"]],
+  ["infrastructure", ["gpu","compute","cluster","kubernetes","docker","mlops","pipeline","distributed","scaling","throughput","latency","serving","deployment","cloud","aws","gcp","azure","tpu","inference endpoint","data center","nvidia","chip","h100","a100","data centre"]],
+  ["llm",            ["gpt","llm","language model","claude","gemini","mistral","llama","qwen","phi","chatgpt","openai","anthropic","palm","transformer","token","context window","fine-tun","deepseek","grok","copilot","large language","foundation model","generative ai","gen ai","gpt-4","gpt-5","o1","o3","sonnet","opus","haiku","artificial intelligence"]],
+  ["politics",       ["president","congress","senate","election","democrat","republican","parliament","government","policy","legislation","vote","white house","trump","biden","nato","geopolit","sanction","treaty","diplomat","prime minister","foreign minister","g7","g20","un security council"]],
+  ["science",        ["nasa","space","climate","physics","biology","chemistry","medical","health","vaccine","cancer","gene","dna","quantum","asteroid","mars","moon","ocean","earthquake","volcano","fossil","crispr","pandemic","epidemic","virus","drug trial","spacex","rocket"]],
+  ["business",       ["stock","market","economy","gdp","fed","federal reserve","inflation","earnings","ipo","merger","acquisition","venture","funding","revenue","profit","recession","trade","tariff","nasdaq","s&p","dow jones","hedge fund","private equity","valuation","series a","series b","seed round"]],
+  ["world",          ["war","conflict","killed","military","protest","crisis","flood","hurricane","disaster","refugee","united nations","ceasefire","troops","missile","explosion","shooting","airstrike","siege","occupation","famine","coup","civil war","peacekeeping"]],
+  ["tech",           ["apple","google","microsoft","samsung","amazon","meta","tesla","chip","semiconductor","iphone","android","5g","broadband","social media","tiktok","spotify","netflix","uber","robotics","autonomous vehicle","self-driving","wearable","smartphone","electric vehicle","ev","battery","solar","renewable"]],
 ];
 
 function classify(title: string, summary: string): string {
@@ -106,19 +107,6 @@ function interestScore(item: RawItem): number {
 }
 
 /* ─────────────────────────────────────────────────────────────────
-   HTML ENTITY DECODING
-───────────────────────────────────────────────────────────────── */
-const HTML_ENTITIES: Record<string, string> = {
-  "&amp;": "&", "&lt;": "<", "&gt;": ">", "&quot;": '"',
-  "&#8216;": "'", "&#8217;": "'", "&#8220;": '"', "&#8221;": '"',
-  "&#8211;": "–", "&#8212;": "—", "&#8230;": "…", "&nbsp;": " ",
-  "&#39;": "'", "&#x27;": "'",
-};
-function decodeEntities(str: string): string {
-  return str.replace(/&#?\w+;/g, (m) => HTML_ENTITIES[m] ?? m);
-}
-
-/* ─────────────────────────────────────────────────────────────────
    QUALITY FILTER
 ───────────────────────────────────────────────────────────────── */
 const SKIP_PATTERNS = [
@@ -157,15 +145,6 @@ function isQualityContent(item: RawItem): boolean {
   }
   /* RSS/NewsAPI: accept everything — world news is welcome now */
   return item.title.length > 15;
-}
-
-/* ─────────────────────────────────────────────────────────────────
-   STABLE ID
-───────────────────────────────────────────────────────────────── */
-function stableId(s: string): string {
-  let h = 0;
-  for (let i = 0; i < s.length; i++) h = (Math.imul(31, h) + s.charCodeAt(i)) | 0;
-  return Math.abs(h).toString(36);
 }
 
 /* ─────────────────────────────────────────────────────────────────

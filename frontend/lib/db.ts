@@ -99,8 +99,3 @@ export async function queryArticles(since: string, until?: string, limit = 200):
     imageUrl:    r.image_url ? String(r.image_url) : undefined,
   }));
 }
-
-export async function getArticleCount(): Promise<number> {
-  const r = await db.execute("SELECT COUNT(*) as cnt FROM articles");
-  return Number(r.rows[0]?.cnt ?? 0);
-}
