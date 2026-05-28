@@ -1,20 +1,20 @@
 # Pulse — Global Intelligence Feed
 
-A real-time news aggregator for AI, tech, and world news. Ranked by interest score, stored in a local SQLite database, with read tracking, dark/light mode, and historical archive views.
+A real-time news aggregator for AI, tech, and world news. Ranked by interest score, stored in a database, with read tracking, dark/light mode, and historical archive views. Fully responsive across mobile, tablet, and desktop.
 
 ---
 
 ## Features
 
-- **5 live data sources** — arXiv, Hacker News, GitHub trending, NewsAPI, and RSS feeds (BBC, Reuters, NPR, TechCrunch, VentureBeat, MIT Tech Review, and more)
+- **5 live data sources** — arXiv, Hacker News, GitHub Trending, NewsAPI, and RSS feeds (BBC, Reuters, NPR, TechCrunch, VentureBeat, MIT Tech Review, and more)
 - **Interest scoring** — every article gets a score (0–99) based on freshness, keyword signals, engagement, and source quality
 - **11 categories** — LLM, Agents, Tooling, Research, Infra, Security, World, Politics, Science, Business, Tech
 - **Auto-refresh every 60 seconds** with new-article detection and a live banner
 - **Read tracking** — articles you've opened are dimmed; your history is saved in localStorage
-- **SQLite archive** — every fetch is persisted locally; browse Yesterday, This Week, This Month
+- **Database archive** — every fetch is persisted; browse Yesterday, This Week, This Month
 - **Dark / light mode** — toggle in the nav, preference saved across sessions
 - **Infinite scroll** — loads more as you reach the bottom
-- **Responsive 3-column card grid** with hero images for top stories
+- **Fully responsive** — single-column on mobile, 2-column on tablet, 3-column + sidebar on desktop
 
 ---
 
@@ -22,13 +22,14 @@ A real-time news aggregator for AI, tech, and world news. Ranked by interest sco
 
 | Layer | Technology |
 |---|---|
-| Framework | Next.js 16 (App Router, Turbopack) |
+| Framework | Next.js 16 (App Router) |
 | Language | TypeScript 5, React 19 |
 | Styling | Tailwind CSS v4 + CSS custom properties |
 | Animations | Framer Motion |
 | Icons | Lucide React |
-| Database | libsql (WASM SQLite, no native deps) |
+| Database | libsql / Turso (SQLite-compatible) |
 | Data sources | arXiv API, HN Algolia, GitHub Search API, NewsAPI.org, RSS/Atom feeds |
+| Testing | Vitest (19 tests) |
 
 ---
 
@@ -42,40 +43,31 @@ A real-time news aggregator for AI, tech, and world news. Ranked by interest sco
 
 ## Local Setup
 
-### 1. Clone the repo
+### 1. Clone and install
 
 ```bash
 git clone https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git
-cd YOUR_REPO_NAME
-```
-
-### 2. Install dependencies
-
-```bash
+cd YOUR_REPO_NAME/frontend
 npm install
 ```
 
-### 3. Add your NewsAPI key
+### 2. Add environment variables
 
-Create a `.env.local` file in the project root:
+Create `frontend/.env.local`:
 
 ```
 NEWSAPI_KEY=your_key_here
 ```
 
-Get a free key at [newsapi.org/register](https://newsapi.org/register). Without it the feed still works — it just uses arXiv, HN, GitHub, and RSS only.
+Get a free key at [newsapi.org/register](https://newsapi.org/register). Without it the feed still works using arXiv, HN, GitHub, and RSS.
 
-### 4. Run the development server
+### 3. Run
 
 ```bash
 npm run dev
-# or on a specific port:
-PORT=3002 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) (or your chosen port).
-
-The SQLite database is created automatically in `data/pulse.db` on the first request to `/api/news`. It grows with every refresh cycle.
+Open [http://localhost:3000](http://localhost:3000). The database is created automatically at `data/pulse.db` on the first request.
 
 ---
 
@@ -83,37 +75,51 @@ The SQLite database is created automatically in `data/pulse.db` on the first req
 
 | Variable | Required | Description |
 |---|---|---|
-| `NEWSAPI_KEY` | Optional | NewsAPI.org API key — adds 25 curated articles per fetch from major outlets |
+| `NEWSAPI_KEY` | Optional | NewsAPI.org key — adds curated articles from major outlets |
+| `TURSO_DATABASE_URL` | Production | libsql URL from Turso — required for Vercel deployment |
+| `TURSO_AUTH_TOKEN` | Production | Auth token from Turso — required for Vercel deployment |
+
+---
+
+## Running Tests
+
+```bash
+npm test
+```
+
+19 unit tests covering `timeAgo`, `stableId`, and `decodeEntities`.
 
 ---
 
 ## Project Structure
 
 ```
+frontend/
 ├── app/
 │   ├── api/
 │   │   └── news/
 │   │       ├── route.ts          # Main feed — fetches all sources, scores, stores
 │   │       └── history/
 │   │           └── route.ts      # Archive endpoint (?range=yesterday|week|month)
-│   ├── globals.css               # CSS custom properties, dark/light themes
-│   ├── layout.tsx                # Root layout with theme-flash prevention script
+│   ├── globals.css               # Themes + responsive layout classes
+│   ├── layout.tsx                # Root layout with theme-flash prevention
 │   └── page.tsx                  # Entry point
 ├── components/
 │   ├── dashboard/
-│   │   └── PulseDashboard.tsx    # Main shell — nav, tabs, grid, sidebar, read state
+│   │   └── PulseDashboard.tsx    # Main shell — nav, tabs, grid, sidebar
 │   ├── news/
-│   │   ├── BentoGrid.tsx         # 3-column card grid with hero card
+│   │   ├── BentoGrid.tsx         # Responsive card grid
 │   │   └── NewsCard.tsx          # Individual article card
 │   └── live/
 │       └── LiveFeed.tsx          # Sidebar live stream list
 ├── context/
 │   └── ReadContext.tsx           # Read state shared across card tree
 ├── lib/
-│   ├── api.ts                    # Client-side fetch wrapper
-│   ├── db.ts                     # SQLite layer (initDb, upsertArticles, queryArticles)
-│   ├── mockFeed.ts               # Seed data shown while live fetch is loading
-│   └── timeAgo.ts                # "2 hours ago" helper
+│   ├── api.ts                    # Client fetch wrapper
+│   ├── db.ts                     # Database layer (initDb, upsertArticles, queryArticles)
+│   ├── utils.ts                  # stableId, decodeEntities
+│   ├── timeAgo.ts                # "2 hours ago" helper
+│   └── __tests__/               # Vitest unit tests
 ├── types/
 │   └── news.ts                   # NewsItem, NewsCategory types
 └── data/
@@ -125,73 +131,59 @@ The SQLite database is created automatically in `data/pulse.db` on the first req
 ## How the Feed Works
 
 1. Every 60 seconds, `/api/news` fetches all 5 sources in parallel
-2. Articles are deduplicated by URL and normalized title
+2. Articles are deduplicated by URL and normalised title
 3. Each article is classified into one of 11 categories using keyword rules
 4. An interest score is computed (freshness + keywords + engagement + source signals)
 5. Articles below score 52 are dropped; top 120 are returned
-6. The same 120 articles are upserted into the local SQLite database
+6. The same 120 articles are upserted into the database
 7. The client detects which article IDs are new since the last fetch and shows a banner
 
 ---
 
-## Building for Production
+## Deploying to Vercel + Turso (Free)
+
+### 1. Set up Turso
 
 ```bash
-npm run build
-npm start
+brew install tursodatabase/tap/turso
+turso auth login
+turso db create pulse-db
+turso db show pulse-db          # copy the libsql:// URL
+turso db tokens create pulse-db # copy the token
 ```
 
-> **Note on deployment:** The SQLite database writes to a local file path. For cloud deployments (Vercel, Railway, etc.) you need either a persistent volume or a hosted SQLite service like [Turso](https://turso.tech). Update `lib/db.ts` to use `TURSO_DATABASE_URL` + `TURSO_AUTH_TOKEN` env vars instead of the local file URL.
-
----
-
-## Pushing to a New GitHub Repository
-
-### Step 1 — Create the repo on GitHub
-
-Go to [github.com/new](https://github.com/new):
-- Give it a name (e.g. `pulse-feed`)
-- Leave it **completely empty** — no README, no .gitignore, no license
-- Click **Create repository**
-
-Copy the HTTPS URL shown (e.g. `https://github.com/your-username/pulse-feed.git`).
-
-### Step 2 — Initialize git and make the first commit
-
-Run these commands inside the project folder:
-
-```bash
-git init
-git add .
-git commit -m "Initial commit — Pulse news aggregator"
-```
-
-### Step 3 — Connect to GitHub and push
-
-```bash
-git remote add origin https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git
-git branch -M main
-git push -u origin main
-```
-
-After the first push, all future updates are just:
+### 2. Push to GitHub
 
 ```bash
 git add .
-git commit -m "describe what changed"
+git commit -m "Ready for deployment"
 git push
 ```
 
-### What gets committed vs ignored
+### 3. Deploy on Vercel
 
-| Committed | Ignored |
+1. Go to [vercel.com](https://vercel.com) → **Add New Project** → import your repo
+2. Set **Root Directory** to `frontend`
+3. Add these environment variables before deploying:
+
+| Name | Value |
 |---|---|
-| All source code (`app/`, `components/`, `lib/`, `types/`) | `node_modules/` |
-| `package.json`, `tsconfig.json`, config files | `.next/` (build output) |
-| `.gitignore`, `README.md` | `.env.local` (your API key — never commit this) |
-| — | `data/` (SQLite database — recreated automatically on first run) |
+| `NEWSAPI_KEY` | your NewsAPI key |
+| `TURSO_DATABASE_URL` | `libsql://pulse-db-yourname.turso.io` |
+| `TURSO_AUTH_TOKEN` | your Turso token |
 
-> Anyone who clones the repo needs to create their own `.env.local` with their own NewsAPI key.
+4. Click **Deploy**
+
+The database schema initialises automatically on the first request.
+
+### 4. Custom Vercel subdomain (free)
+
+To change your URL from `random-hash.vercel.app` to something memorable without buying a domain:
+
+1. Go to your project on Vercel → **Settings** → **Domains**
+2. Click **Edit** next to your current `.vercel.app` domain
+3. Type a new name — e.g. `pulse-news` → your URL becomes `pulse-news.vercel.app`
+4. Click **Save** — takes effect immediately, no DNS wait
 
 ---
 

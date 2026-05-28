@@ -214,17 +214,14 @@ export function PulseDashboard() {
           backdropFilter: "blur(20px)",
           position: "sticky", top: 0, zIndex: 50,
         }}>
-          <div style={{
-            maxWidth: 1380, margin: "0 auto", padding: "0 24px",
-            height: 54, display: "flex", alignItems: "center", gap: 20,
-          }}>
+          <div className="nav-inner">
             {/* Logo */}
             <span style={{ fontWeight: 800, fontSize: 17, letterSpacing: "-0.5px", color: "var(--text-primary)", fontFamily: "var(--font-geist-mono)", flexShrink: 0 }}>
               <span style={{ color: "var(--brand)" }}>P</span>ULSE
             </span>
 
             {/* Period tabs — in nav */}
-            <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
+            <div className="nav-tabs">
               {(["live", "yesterday", "week", "month"] as TimePeriod[]).map(period => {
                 const active = timePeriod === period;
                 return (
@@ -253,7 +250,7 @@ export function PulseDashboard() {
             <div style={{ flex: 1 }} />
 
             {/* Date */}
-            <span style={{ fontSize: 12, color: "var(--text-muted)", flexShrink: 0 }}>{dateStr}</span>
+            <span className="nav-date" style={{ fontSize: 12, color: "var(--text-muted)" }}>{dateStr}</span>
 
             {/* Status */}
             {isLive && (
@@ -361,10 +358,7 @@ export function PulseDashboard() {
         </div>
 
         {/* ── Main layout ──────────────────────────────────── */}
-        <div style={{
-          maxWidth: 1380, margin: "0 auto", padding: "28px 24px",
-          display: "grid", gridTemplateColumns: "1fr 288px", gap: 28, alignItems: "start",
-        }}>
+        <div className="main-layout">
           <main>
             {/* New articles banner */}
             {isLive && (
@@ -432,7 +426,7 @@ export function PulseDashboard() {
           </main>
 
           {/* ── Sidebar ───────────────────────────────────── */}
-          <aside style={{ position: "sticky", top: 62, display: "flex", flexDirection: "column", gap: 16 }}>
+          <aside className="sidebar-panel">
             {/* Live feed */}
             <div style={{
               borderRadius: 10, border: "1px solid var(--border)",
@@ -587,7 +581,7 @@ function EmptyState({ category, period }: { category: string; period: TimePeriod
 
 function LoadingSkeleton() {
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
+    <div className="bento-grid">
       {[3, 1, 1, 1, 1, 1, 1, 1, 1].map((span, i) => (
         <div key={i} style={{
           gridColumn: `span ${span}`, height: i === 0 ? 260 : 180,
