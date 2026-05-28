@@ -2,18 +2,26 @@ import { createClient } from "@libsql/client";
 import path from "path";
 import fs from "fs";
 
-const DATA_DIR = path.join(process.cwd(), "data");
-if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
-
 declare global {
   // eslint-disable-next-line no-var
   var _pulseDb: ReturnType<typeof createClient> | undefined;
 }
 
-export const db = globalThis._pulseDb ?? createClient({
-  url: `file:${path.join(DATA_DIR, "pulse.db")}`,
-});
+function createDb() {
+  // Production: use Turso remote database
+  if (process.env.TURSO_DATABASE_URL) {
+    return createClient({
+      url: process.env.TURSO_DATABASE_URL,
+      authToken: process.env.TURSO_AUTH_TOKEN,
+    });
+  }
+  // Development: local SQLite file
+  const DATA_DIR = path.join(process.cwd(), "data");
+  if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+  return createClient({ url: `file:${path.join(DATA_DIR, "pulse.db")}` });
+}
 
+export const db = globalThis._pulseDb ?? createDb();
 if (process.env.NODE_ENV !== "production") globalThis._pulseDb = db;
 
 /* ── Initialize schema ─────────────────────────────────────── */

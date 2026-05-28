@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { initDb, queryArticles } from "@/lib/db";
 
+export const maxDuration = 30;
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const range = searchParams.get("range") ?? "yesterday";

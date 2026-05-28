@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { initDb, upsertArticles } from "@/lib/db";
 
+// Vercel: allow up to 60s (arXiv fetches can be slow)
+export const maxDuration = 60;
+
 /* ─────────────────────────────────────────────────────────────────
    TYPES
 ───────────────────────────────────────────────────────────────── */
