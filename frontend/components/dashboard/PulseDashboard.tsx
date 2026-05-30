@@ -227,7 +227,7 @@ export function PulseDashboard() {
                 return (
                   <button key={period} onClick={() => setTimePeriod(period)} style={{
                     padding: "5px 13px", borderRadius: 7,
-                    border: active ? `1px solid ${period === "live" ? "rgba(99,102,241,0.35)" : "var(--border-strong)"}` : "1px solid transparent",
+                    border: active ? `1px solid ${period === "live" ? "var(--brand-border)" : "var(--border-strong)"}` : "1px solid transparent",
                     background: active ? (period === "live" ? "var(--brand-dim)" : "var(--bg-elevated)") : "transparent",
                     color: active ? (period === "live" ? "var(--brand)" : "var(--text-primary)") : "var(--text-muted)",
                     fontSize: 12, fontWeight: active ? 700 : 400,
@@ -349,7 +349,7 @@ export function PulseDashboard() {
               <span style={{
                 fontSize: 11, padding: "2px 9px", borderRadius: 20, flexShrink: 0,
                 background: "var(--brand-dim)", color: "var(--brand)",
-                fontWeight: 600, border: "1px solid rgba(99,102,241,0.22)",
+                fontWeight: 600, border: "1px solid var(--brand-border)",
               }}>
                 {trendingCount} trending
               </span>
@@ -370,7 +370,7 @@ export function PulseDashboard() {
                     exit={{ opacity: 0, y: -8 }}
                     style={{
                       marginBottom: 20, padding: "10px 16px", borderRadius: 8,
-                      border: "1px solid rgba(99,102,241,0.3)",
+                      border: "1px solid var(--brand-border)",
                       background: "var(--brand-dim)",
                       display: "flex", alignItems: "center", justifyContent: "space-between",
                       cursor: "pointer",
@@ -483,7 +483,7 @@ export function PulseDashboard() {
               {!isLive && (
                 <button onClick={() => setTimePeriod("live")} style={{
                   marginTop: 16, width: "100%", padding: "8px 0",
-                  background: "var(--brand-dim)", border: "1px solid rgba(99,102,241,0.25)",
+                  background: "var(--brand-dim)", border: "1px solid var(--brand-border)",
                   borderRadius: 7, cursor: "pointer", fontSize: 12,
                   color: "var(--brand)", fontWeight: 600,
                 }}>
@@ -556,7 +556,7 @@ function CaughtUp({ total, readCount, readPct, secsLeft, onRefresh, isLive, peri
       {!isLive && (
         <button onClick={onSwitchLive} style={{
           marginTop: 20, padding: "9px 22px",
-          background: "var(--brand-dim)", border: "1px solid rgba(99,102,241,0.3)",
+          background: "var(--brand-dim)", border: "1px solid var(--brand-border)",
           borderRadius: 8, cursor: "pointer", fontSize: 13,
           color: "var(--brand)", fontWeight: 600,
         }}>

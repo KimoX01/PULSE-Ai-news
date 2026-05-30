@@ -3,19 +3,20 @@
 /* ── Dark theme (default) ────────────────────────────────────── */
 :root,
 [data-theme="dark"] {
-  --bg:            #0c0c15;
-  --bg-card:       #13131f;
-  --bg-elevated:   #1a1a2a;
+  --bg:            #0f0f0f;
+  --bg-card:       #161616;
+  --bg-elevated:   #1e1e1e;
   --border:        rgba(255, 255, 255, 0.07);
   --border-strong: rgba(255, 255, 255, 0.13);
-  --text-primary:  #eaeaf5;
-  --text-secondary:#8888a8;
-  --text-muted:    #55556a;
-  --brand:         #6366f1;
-  --brand-dim:     rgba(99, 102, 241, 0.14);
-  --nav-bg:        rgba(12, 12, 21, 0.92);
-  --shadow-card:   0 2px 8px rgba(0, 0, 0, 0.3);
-  --shadow-hover:  0 8px 32px rgba(0, 0, 0, 0.55);
+  --text-primary:  #f0f0f0;
+  --text-secondary:#909090;
+  --text-muted:    #565656;
+  --brand:         #e03535;
+  --brand-dim:     rgba(224, 53, 53, 0.12);
+  --brand-border:  rgba(224, 53, 53, 0.28);
+  --nav-bg:        rgba(15, 15, 15, 0.94);
+  --shadow-card:   0 2px 8px rgba(0, 0, 0, 0.4);
+  --shadow-hover:  0 8px 32px rgba(0, 0, 0, 0.7);
   --gradient-opacity: 1;
 }
 
@@ -32,6 +33,7 @@ html[data-theme="light"] {
   --text-muted:    #9898b0;
   --brand:         #4f52d9;
   --brand-dim:     rgba(79, 82, 217, 0.1);
+  --brand-border:  rgba(79, 82, 217, 0.25);
   --nav-bg:        rgba(242, 242, 247, 0.92);
   --shadow-card:   0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 0, 0, 0.04);
   --shadow-hover:  0 4px 20px rgba(0, 0, 0, 0.1);
@@ -66,7 +68,7 @@ body::before {
   z-index: -1;
   pointer-events: none;
   opacity: var(--gradient-opacity);
-  background: radial-gradient(ellipse 80% 40% at 50% -10%, rgba(99,102,241,0.06) 0%, transparent 100%);
+  background: radial-gradient(ellipse 80% 40% at 50% -10%, rgba(224,53,53,0.05) 0%, transparent 100%);
   transition: opacity 220ms ease;
 }
 
