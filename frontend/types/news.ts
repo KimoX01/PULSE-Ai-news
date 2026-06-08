@@ -1,19 +1,18 @@
 export type NewsCategory =
-  | "llm"
-  | "agentic"
-  | "tooling"
-  | "research"
-  | "infrastructure"
-  | "security"
   | "world"
-  | "politics"
   | "science"
+  | "tech"
+  | "ai"
+  | "politics"
   | "business"
-  | "tech";
+  | "health"
+  | "climate"
+  | "ideas"
+  | "culture";
 
 export interface NewsItem {
   id: string;
-  source: "x" | "rss" | "github" | "arxiv";
+  source: "rss" | "github" | "arxiv";
   url: string;
   title: string;
   summary: string;

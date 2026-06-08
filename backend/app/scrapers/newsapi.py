@@ -10,9 +10,11 @@ from app.classify import classify
 from app.models import NewsItem
 
 _BASE = "https://newsapi.org/v2/everything"
+
+# Broad query — science, world events, climate, health, tech, ideas
 _QUERY = (
-    "artificial intelligence OR machine learning OR LLM OR "
-    "large language model OR AI agent OR GPT OR Claude OR Gemini"
+    "science discovery OR climate change OR public health OR "
+    "geopolitics OR technology OR economy OR philosophy"
 )
 
 
@@ -29,7 +31,7 @@ async def fetch_newsapi_news() -> list[NewsItem]:
         "q": _QUERY,
         "language": "en",
         "sortBy": "publishedAt",
-        "pageSize": "10",
+        "pageSize": "15",
         "apiKey": key,
     }
 
@@ -57,7 +59,6 @@ async def fetch_newsapi_news() -> list[NewsItem]:
         except Exception:
             published_at = datetime.now(timezone.utc).isoformat()
 
-        # Score by position (NewsAPI sorts by date)
         hype = max(63, 88 - i * 3)
 
         items.append(NewsItem(

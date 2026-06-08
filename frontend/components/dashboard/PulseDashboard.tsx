@@ -11,15 +11,14 @@ import { ReadContext } from "@/context/ReadContext";
 import type { NewsItem, NewsCategory } from "@/types/news";
 
 const ALL_CATEGORIES: NewsCategory[] = [
-  "llm", "agentic", "tooling", "research", "infrastructure", "security",
-  "world", "politics", "science", "business", "tech",
+  "world", "science", "tech", "ai",
+  "politics", "business", "health", "climate", "ideas", "culture",
 ];
 
 const CATEGORY_LABELS: Record<NewsCategory, string> = {
-  llm: "LLM", agentic: "Agents", tooling: "Tooling",
-  research: "Research", infrastructure: "Infra", security: "Security",
-  world: "World", politics: "Politics", science: "Science",
-  business: "Business", tech: "Tech",
+  world: "World", science: "Science", tech: "Tech", ai: "AI",
+  politics: "Politics", business: "Business", health: "Health",
+  climate: "Climate", ideas: "Ideas", culture: "Culture",
 };
 
 const PAGE_SIZE = 12;
@@ -351,7 +350,7 @@ export function PulseDashboard() {
                 background: "var(--brand-dim)", color: "var(--brand)",
                 fontWeight: 600, border: "1px solid var(--brand-border)",
               }}>
-                {trendingCount} trending
+                {trendingCount} notable
               </span>
             )}
           </div>
@@ -464,7 +463,7 @@ export function PulseDashboard() {
                 <StatRow label="Stories" value={String(displayItems.length)} />
                 <StatRow label="Unread" value={String(displayItems.filter(i => !readIds.has(i.id)).length)} color="var(--brand)" />
                 <StatRow label="Read" value={String(readIds.size)} />
-                <StatRow label="Trending" value={String(trendingCount)} />
+                <StatRow label="Notable" value={String(trendingCount)} />
                 {isLive && <StatRow label="Refreshes in" value={`${secsLeft}s`} />}
               </div>
 
@@ -498,7 +497,7 @@ export function PulseDashboard() {
           borderTop: "1px solid var(--border)", padding: "18px 24px",
           textAlign: "center", fontSize: 11, color: "var(--text-muted)",
         }}>
-          Pulse · arXiv · Hacker News · GitHub · Reuters · BBC · NPR · TechCrunch · VentureBeat
+          Pulse · BBC World · NPR · The Guardian · Scientific American · New Scientist · Ars Technica · MIT Technology Review · Hacker News · arXiv
         </footer>
       </div>
     </ReadContext.Provider>
@@ -581,15 +580,38 @@ function EmptyState({ category, period }: { category: string; period: TimePeriod
 
 function LoadingSkeleton() {
   return (
-    <div className="bento-grid">
-      {[3, 1, 1, 1, 1, 1, 1, 1, 1].map((span, i) => (
-        <div key={i} style={{
-          gridColumn: `span ${span}`, height: i === 0 ? 260 : 180,
-          borderRadius: 10, background: "var(--bg-card)",
-          border: "1px solid var(--border)",
-          animation: `skeletonPulse 1.5s ease-in-out ${i * 80}ms infinite`,
-        }} />
-      ))}
+    <div>
+      {/* Hero skeleton */}
+      <div style={{
+        borderRadius: 14, background: "var(--bg-card)",
+        border: "1px solid var(--border)",
+        overflow: "hidden", marginBottom: 22,
+        animation: "skeletonPulse 1.5s ease-in-out infinite",
+      }}>
+        <div style={{ aspectRatio: "21/9", background: "var(--bg-elevated)" }} />
+        <div style={{ padding: "20px 24px 22px" }}>
+          <div style={{ height: 14, width: "40%", borderRadius: 4, background: "var(--bg-elevated)", marginBottom: 14 }} />
+          <div style={{ height: 28, width: "80%", borderRadius: 4, background: "var(--bg-elevated)", marginBottom: 10 }} />
+          <div style={{ height: 14, width: "60%", borderRadius: 4, background: "var(--bg-elevated)" }} />
+        </div>
+      </div>
+      {/* Grid skeletons */}
+      <div className="skeleton-grid">
+        {[0, 1, 2, 3, 4, 5].map(i => (
+          <div key={i} style={{
+            borderRadius: 12, background: "var(--bg-card)",
+            border: "1px solid var(--border)", overflow: "hidden",
+            animation: `skeletonPulse 1.5s ease-in-out ${i * 80}ms infinite`,
+          }}>
+            <div style={{ aspectRatio: "16/9", background: "var(--bg-elevated)" }} />
+            <div style={{ padding: "13px 14px 14px" }}>
+              <div style={{ height: 10, width: "50%", borderRadius: 3, background: "var(--bg-elevated)", marginBottom: 10 }} />
+              <div style={{ height: 14, width: "90%", borderRadius: 3, background: "var(--bg-elevated)", marginBottom: 6 }} />
+              <div style={{ height: 14, width: "70%", borderRadius: 3, background: "var(--bg-elevated)" }} />
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

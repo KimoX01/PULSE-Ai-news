@@ -3,40 +3,39 @@
 /* ── Dark theme (default) ────────────────────────────────────── */
 :root,
 [data-theme="dark"] {
-  --bg:            #0f0f0f;
-  --bg-card:       #161616;
-  --bg-elevated:   #1e1e1e;
+  --bg:            #0c0c0e;
+  --bg-card:       #141416;
+  --bg-elevated:   #1c1c20;
   --border:        rgba(255, 255, 255, 0.07);
-  --border-strong: rgba(255, 255, 255, 0.13);
-  --text-primary:  #f0f0f0;
-  --text-secondary:#909090;
-  --text-muted:    #565656;
+  --border-strong: rgba(255, 255, 255, 0.14);
+  --text-primary:  #f0f0f2;
+  --text-secondary:#8a8a9a;
+  --text-muted:    #50505e;
   --brand:         #e03535;
   --brand-dim:     rgba(224, 53, 53, 0.12);
   --brand-border:  rgba(224, 53, 53, 0.28);
-  --nav-bg:        rgba(15, 15, 15, 0.94);
-  --shadow-card:   0 2px 8px rgba(0, 0, 0, 0.4);
-  --shadow-hover:  0 8px 32px rgba(0, 0, 0, 0.7);
+  --nav-bg:        rgba(12, 12, 14, 0.92);
+  --shadow-card:   0 2px 12px rgba(0, 0, 0, 0.5);
+  --shadow-hover:  0 8px 36px rgba(0, 0, 0, 0.75);
   --gradient-opacity: 1;
 }
 
 /* ── Light theme ─────────────────────────────────────────────── */
-/* html[data-theme] has specificity (0,1,1) > :root (0,1,0) — always wins */
 html[data-theme="light"] {
-  --bg:            #f2f2f7;
+  --bg:            #f0f0f5;
   --bg-card:       #ffffff;
-  --bg-elevated:   #e8e8f0;
+  --bg-elevated:   #e6e6ee;
   --border:        rgba(0, 0, 0, 0.08);
   --border-strong: rgba(0, 0, 0, 0.14);
-  --text-primary:  #0f0f1a;
-  --text-secondary:#5a5a72;
-  --text-muted:    #9898b0;
+  --text-primary:  #0d0d1a;
+  --text-secondary:#52526a;
+  --text-muted:    #9494aa;
   --brand:         #c82020;
   --brand-dim:     rgba(200, 32, 32, 0.1);
   --brand-border:  rgba(200, 32, 32, 0.25);
-  --nav-bg:        rgba(242, 242, 247, 0.92);
-  --shadow-card:   0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 0, 0, 0.04);
-  --shadow-hover:  0 4px 20px rgba(0, 0, 0, 0.1);
+  --nav-bg:        rgba(240, 240, 245, 0.93);
+  --shadow-card:   0 1px 4px rgba(0, 0, 0, 0.05), 0 4px 16px rgba(0, 0, 0, 0.04);
+  --shadow-hover:  0 4px 24px rgba(0, 0, 0, 0.1);
   --gradient-opacity: 0;
 }
 
@@ -68,28 +67,26 @@ body::before {
   z-index: -1;
   pointer-events: none;
   opacity: var(--gradient-opacity);
-  background: radial-gradient(ellipse 80% 40% at 50% -10%, rgba(224,53,53,0.05) 0%, transparent 100%);
+  background:
+    radial-gradient(ellipse 70% 35% at 50% -5%,  rgba(224,53,53,0.06) 0%, transparent 100%),
+    radial-gradient(ellipse 50% 40% at 90% 110%, rgba(96,165,250,0.04) 0%, transparent 100%);
   transition: opacity 220ms ease;
 }
 
 /* ── Live dot ────────────────────────────────────────────────── */
 @keyframes livePulse {
   0%, 100% { opacity: 1; transform: scale(1); }
-  50%       { opacity: 0.35; transform: scale(0.75); }
+  50%       { opacity: 0.3; transform: scale(0.7); }
 }
 .live-dot { animation: livePulse 2s ease-in-out infinite; }
 
-/* ── Score bar ───────────────────────────────────────────────── */
-.score-bar {
-  height: 2px;
-  border-radius: 2px;
-  background: var(--border-strong);
-  overflow: hidden;
+/* ── Card image hover zoom ───────────────────────────────────── */
+.card-img {
+  transition: transform 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              opacity 0.4s ease;
 }
-.score-fill {
-  height: 100%;
-  border-radius: 2px;
-  transition: width 600ms ease;
+article:hover .card-img {
+  transform: scale(1.04);
 }
 
 /* ── Ticker ──────────────────────────────────────────────────── */
@@ -100,23 +97,38 @@ body::before {
 .ticker-inner {
   display: flex;
   width: max-content;
-  animation: tickerMove 50s linear infinite;
+  animation: tickerMove 55s linear infinite;
 }
 .ticker-inner:hover { animation-play-state: paused; }
 
 /* ── Card skeleton pulse ─────────────────────────────────────── */
 @keyframes skeletonPulse {
-  0%, 100% { opacity: 0.35; }
-  50%       { opacity: 0.6; }
+  0%, 100% { opacity: 0.3; }
+  50%       { opacity: 0.55; }
+}
+
+/* ── Newspaper grid ──────────────────────────────────────────── */
+.news-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+
+/* ── Loading skeleton grid ───────────────────────────────────── */
+.skeleton-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
 }
 
 /* ── Responsive layout ───────────────────────────────────────── */
 
 /* Nav */
 .nav-inner {
-  max-width: 1380px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 0 28px;
   height: 54px;
   display: flex;
   align-items: center;
@@ -131,11 +143,11 @@ body::before {
 
 /* Main two-column grid */
 .main-layout {
-  max-width: 1380px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 28px 24px;
+  padding: 28px 28px;
   display: grid;
-  grid-template-columns: 1fr 288px;
+  grid-template-columns: 1fr 300px;
   gap: 28px;
   align-items: start;
 }
@@ -149,13 +161,6 @@ body::before {
   gap: 16px;
 }
 
-/* Article grid */
-.bento-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-}
-.hero-card { grid-column: span 3; }
 
 /* ── Tablet (≤ 1080px) ───────────────────────────────────────── */
 @media (max-width: 1080px) {
@@ -165,11 +170,11 @@ body::before {
   .sidebar-panel {
     display: none;
   }
-  .bento-grid {
+  .news-grid {
     grid-template-columns: repeat(2, 1fr);
   }
-  .hero-card {
-    grid-column: span 2;
+  .skeleton-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
@@ -182,7 +187,6 @@ body::before {
     flex-wrap: wrap;
     gap: 8px;
   }
-  /* Push period tabs to their own row */
   .nav-tabs {
     order: 10;
     width: 100%;
@@ -192,16 +196,16 @@ body::before {
     padding-bottom: 2px;
   }
   .nav-tabs::-webkit-scrollbar { display: none; }
-  /* Hide date on small screens */
   .nav-date { display: none !important; }
 
   .main-layout {
-    padding: 14px;
-    gap: 14px;
-  }
-  .bento-grid {
-    grid-template-columns: 1fr;
+    padding: 12px;
     gap: 12px;
   }
-  .hero-card { grid-column: span 1; }
+  .news-grid {
+    grid-template-columns: 1fr;
+  }
+  .skeleton-grid {
+    grid-template-columns: 1fr;
+  }
 }

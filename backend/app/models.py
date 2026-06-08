@@ -1,8 +1,11 @@
 from pydantic import BaseModel
 from typing import Literal
 
-NewsCategory = Literal["llm", "agentic", "tooling", "research", "infrastructure", "security"]
-NewsSource = Literal["x", "rss", "github", "arxiv"]
+NewsCategory = Literal[
+    "world", "science", "tech", "ai",
+    "politics", "business", "health", "climate", "ideas", "culture",
+]
+NewsSource = Literal["rss", "github", "arxiv"]
 
 
 class NewsItem(BaseModel):
@@ -14,3 +17,4 @@ class NewsItem(BaseModel):
     category: NewsCategory
     hypeScore: int
     publishedAt: str  # ISO 8601
+    imageUrl: str | None = None

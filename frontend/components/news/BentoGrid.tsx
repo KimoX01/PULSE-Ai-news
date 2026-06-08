@@ -2,30 +2,48 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import type { NewsItem } from "@/types/news";
-import { NewsCard } from "./NewsCard";
+import { HeroCard, GridCard } from "./NewsCard";
 
 export function BentoGrid({ items }: { items: NewsItem[] }) {
+  if (items.length === 0) return null;
+  const [hero, ...rest] = items;
+
   return (
-    <section className="bento-grid">
+    <div>
+      {/* Featured / hero story */}
       <AnimatePresence mode="popLayout">
-        {items.map((item, index) => {
-          const isHero = index === 0 && item.hypeScore > 78;
-          return (
-            <motion.div
-              key={item.id}
-              layout
-              initial={{ opacity: 0, y: 14 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.97 }}
-              transition={{ duration: 0.2, ease: "easeOut", delay: Math.min(index * 0.03, 0.18) }}
-              className={isHero ? "hero-card" : undefined}
-              style={{ minWidth: 0 }}
-            >
-              <NewsCard item={item} featured={isHero} />
-            </motion.div>
-          );
-        })}
+        <motion.div
+          key={hero.id}
+          layout
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.99 }}
+          transition={{ duration: 0.25, ease: "easeOut" }}
+          style={{ marginBottom: 22 }}
+        >
+          <HeroCard item={hero} />
+        </motion.div>
       </AnimatePresence>
-    </section>
+
+      {/* 3-column newspaper grid */}
+      {rest.length > 0 && (
+        <div className="news-grid">
+          <AnimatePresence mode="popLayout">
+            {rest.map((item, index) => (
+              <motion.div
+                key={item.id}
+                layout
+                initial={{ opacity: 0, y: 14 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.98 }}
+                transition={{ duration: 0.2, ease: "easeOut", delay: Math.min(index * 0.03, 0.18) }}
+              >
+                <GridCard item={item} />
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </div>
+      )}
+    </div>
   );
 }
