@@ -25,19 +25,20 @@ interface RawItem {
 
 /* ─────────────────────────────────────────────────────────────────
    CLASSIFIER — priority order matters (first match wins)
+   Categories: climate, health, ai, science, politics, business,
+               tech, culture, ideas, world (default fallback)
 ───────────────────────────────────────────────────────────────── */
 const RULES: [string, string[]][] = [
-  ["security",       ["safety","jailbreak","prompt injection","adversarial","red team","vulnerability","attack","privacy","hallucin","misuse","exploit","cybersecurity","breach","hack","ransomware","malware","phishing","zero-day","cve","patch tuesday","data leak","data breach"]],
-  ["agentic",        ["agent","agentic","tool call","tool use","autonomous","multi-agent","multi agent","workflow","orchestrat","planning","computer use","browser use","mcp","model context protocol"]],
-  ["research",       ["paper","arxiv","benchmark","dataset","evaluation","rlhf","alignment","experiment","ablation","pretraining","fine-tuning","finetune","training method","loss function","scaling law","machine learning","deep learning","neural network","reinforcement learning","diffusion model","multimodal","vision model","speech model"]],
-  ["tooling",        ["sdk","library","framework","langchain","llamaindex","hugging face","huggingface","vllm","ollama","lmstudio","open webui","cli","plugin","integration","api client","developer tool","open source tool"]],
-  ["infrastructure", ["gpu","compute","cluster","kubernetes","docker","mlops","pipeline","distributed","scaling","throughput","latency","serving","deployment","cloud","aws","gcp","azure","tpu","inference endpoint","data center","nvidia","chip","h100","a100","data centre"]],
-  ["llm",            ["gpt","llm","language model","claude","gemini","mistral","llama","qwen","phi","chatgpt","openai","anthropic","palm","transformer","token","context window","fine-tun","deepseek","grok","copilot","large language","foundation model","generative ai","gen ai","gpt-4","gpt-5","o1","o3","sonnet","opus","haiku","artificial intelligence"]],
-  ["politics",       ["president","congress","senate","election","democrat","republican","parliament","government","policy","legislation","vote","white house","trump","biden","nato","geopolit","sanction","treaty","diplomat","prime minister","foreign minister","g7","g20","un security council"]],
-  ["science",        ["nasa","space","climate","physics","biology","chemistry","medical","health","vaccine","cancer","gene","dna","quantum","asteroid","mars","moon","ocean","earthquake","volcano","fossil","crispr","pandemic","epidemic","virus","drug trial","spacex","rocket"]],
-  ["business",       ["stock","market","economy","gdp","fed","federal reserve","inflation","earnings","ipo","merger","acquisition","venture","funding","revenue","profit","recession","trade","tariff","nasdaq","s&p","dow jones","hedge fund","private equity","valuation","series a","series b","seed round"]],
-  ["world",          ["war","conflict","killed","military","protest","crisis","flood","hurricane","disaster","refugee","united nations","ceasefire","troops","missile","explosion","shooting","airstrike","siege","occupation","famine","coup","civil war","peacekeeping"]],
-  ["tech",           ["apple","google","microsoft","samsung","amazon","meta","tesla","chip","semiconductor","iphone","android","5g","broadband","social media","tiktok","spotify","netflix","uber","robotics","autonomous vehicle","self-driving","wearable","smartphone","electric vehicle","ev","battery","solar","renewable"]],
+  ["climate",  ["climate change","global warming","carbon","greenhouse","emissions","fossil fuel","net zero","renewable energy","solar panel","wind farm","drought","wildfire","flood","sea level","ipcc","paris agreement","biodiversity","deforestation","coral reef","glacier","arctic","antarctic","heat wave","extreme weather"]],
+  ["health",   ["vaccine","vaccination","pandemic","epidemic","virus","covid","cancer","alzheimer","diabetes","mental health","obesity","antibiotic","drug trial","fda approval","public health","who","disease","infection","surgery","gene therapy","clinical trial","hospital","mortality","life expectancy","crispr","biotech","pharmaceutical","outbreak"]],
+  ["ai",       ["artificial intelligence","machine learning","deep learning","neural network","llm","large language model","gpt","claude","gemini","mistral","llama","chatgpt","openai","anthropic","generative ai","diffusion model","transformer","rlhf","fine-tuning","benchmark","ai agent","computer vision","nlp","natural language","foundation model","deepseek","grok","copilot","hugging face","vllm","ollama","multimodal","ai safety","alignment"]],
+  ["science",  ["nasa","spacex","space","black hole","quantum","physics","biology","chemistry","dna","genome","crispr","asteroid","mars","moon","rocket","particle","telescope","neuroscience","archaeology","paleontology","geology","fossil","ocean","atmosphere","supernova","dark matter","dark energy","scientific","discovery","experiment","research paper","arxiv","study finds"]],
+  ["politics", ["president","congress","senate","election","democrat","republican","parliament","government","policy","legislation","vote","white house","trump","biden","nato","geopolit","sanction","treaty","diplomat","prime minister","foreign minister","g7","g20","un security council","cabinet","referendum","campaign","politician","supreme court","judiciary","executive order"]],
+  ["business", ["stock market","nasdaq","s&p 500","dow jones","federal reserve","interest rate","inflation","gdp","recession","earnings","ipo","merger","acquisition","startup","venture capital","funding","revenue","profit","hedge fund","private equity","valuation","trade war","tariff","supply chain","central bank","cryptocurrency","bitcoin","wall street","economy","economic"]],
+  ["tech",     ["apple","google","microsoft","samsung","amazon","meta","tesla","chip","semiconductor","iphone","android","5g","broadband","social media","tiktok","spotify","netflix","uber","robotics","autonomous vehicle","self-driving","wearable","smartphone","electric vehicle","ev","battery","software","cybersecurity","hack","data breach","privacy","surveillance","smartphone","app"]],
+  ["culture",  ["film","movie","music","album","art","literature","book","award","oscar","grammy","museum","architecture","design","fashion","food","travel","sport","olympic","world cup","theater","television","streaming","celebrity","culture","photography","video game","gaming","animation","documentary"]],
+  ["ideas",    ["philosophy","ethics","psychology","sociology","economics theory","democracy","capitalism","freedom","inequality","justice","education","future","innovation","creativity","consciousness","existential","meaning","society","civilization","history","politics of","debate","essay","opinion","argument","perspective","why","how we","what if"]],
+  ["world",    ["war","conflict","killed","military","protest","crisis","refugee","united nations","ceasefire","troops","missile","explosion","airstrike","siege","occupation","famine","coup","civil war","peacekeeping","terrorist","earthquake","tsunami","hurricane","typhoon","immigration","border","diplomat","international","foreign","global","countries","nations","summit"]],
 ];
 
 function classify(title: string, summary: string): string {
@@ -143,8 +144,8 @@ function isQualityContent(item: RawItem): boolean {
     const text = item.title + " " + item.summary;
     return GITHUB_AI_PATTERNS.some((p) => p.test(text));
   }
-  /* RSS/NewsAPI: accept everything — world news is welcome now */
-  return item.title.length > 15;
+  /* RSS / HN / NewsAPI: accept all substantive headlines */
+  return item.title.length > 20;
 }
 
 /* ─────────────────────────────────────────────────────────────────
@@ -196,10 +197,10 @@ async function fetchArxiv(): Promise<RawItem[]> {
 }
 
 /* ─────────────────────────────────────────────────────────────────
-   HACKER NEWS — parallel single-term queries
+   HACKER NEWS — broad top stories (not AI-only)
 ───────────────────────────────────────────────────────────────── */
 async function fetchHN(): Promise<RawItem[]> {
-  const HN_QUERIES = ["LLM", "AI", "GPT", "Claude", "Llama", "Mistral", "Gemini"];
+  const HN_QUERIES = ["AI", "science", "climate", "health", "geopolitics", "technology", "space"];
   const base = "https://hn.algolia.com/api/v1/search_by_date?tags=story&numericFilters=points%3E5&hitsPerPage=15&query=";
   const results = await Promise.allSettled(
     HN_QUERIES.map((q) => fetchWithTimeout(base + encodeURIComponent(q), {}, 10_000).then((r) => r.json())),
@@ -332,20 +333,25 @@ async function fetchNewsApi(): Promise<RawItem[]> {
 }
 
 /* ─────────────────────────────────────────────────────────────────
-   RSS FEEDS — AI + world news
+   RSS FEEDS — world news, science, tech, health, climate, AI
 ───────────────────────────────────────────────────────────────── */
 const RSS_FEEDS = [
-  /* AI / Tech */
+  /* World news */
+  "https://feeds.bbci.co.uk/news/world/rss.xml",
+  "https://feeds.npr.org/1001/rss.xml",
+  "https://www.theguardian.com/world/rss",
+  "https://feeds.reuters.com/reuters/topNews",
+  /* Science */
+  "https://rss.sciam.com/ScientificAmerican-Global",
+  "https://www.newscientist.com/feed/home/",
+  /* Tech / AI */
+  "https://feeds.arstechnica.com/arstechnica/index",
+  "https://www.technologyreview.com/feed/",
   "https://www.theverge.com/rss/ai-artificial-intelligence/index.xml",
   "https://techcrunch.com/category/artificial-intelligence/feed/",
-  "https://venturebeat.com/category/ai/feed/",
-  "https://www.technologyreview.com/feed/",
-  /* World / US News */
-  "https://feeds.npr.org/1001/rss.xml",
-  "https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml",
-  "https://feeds.bbci.co.uk/news/world/rss.xml",
-  "https://feeds.reuters.com/reuters/topNews",
-  "https://feeds.arstechnica.com/arstechnica/index",
+  /* Health & Climate via Guardian */
+  "https://www.theguardian.com/science/rss",
+  "https://www.theguardian.com/environment/rss",
 ];
 
 function extractRssImage(raw: string): string | undefined {
